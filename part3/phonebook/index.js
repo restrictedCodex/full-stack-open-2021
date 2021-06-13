@@ -1,8 +1,10 @@
-const { request, response } = require('express')
 const express = require('express')
+const morgan = require('morgan')
+const cors = require('cors')
 const app = express()
 
 app.use(express.json())
+app.use(cors())
 
 let persons = [
     {
@@ -27,41 +29,6 @@ let persons = [
     }
 ]
 
-app.get('/info', (request, response) => {
-    response.send(`
-    <p>Phonebook has info for ${persons.length} people</p>
-    <p>${new Date}</p>
-    `)
-})
-
-app.get('/api/persons', (request,response)=>{
-    response.json(persons)
-})
-
-app.post('/api/persons',(request,response)=>{
-    const body = request.body
-
-    if(!body.name || !body.number){
-        return response.status(400).json({
-            error:'name or number is missing'
-        })
-    } else if(ersons.find(person => person.name === body.name)) {
-        response.status(400).json({
-            error: 'name must be unique only'
-        })
-    }
-
-    const person = {
-        name: body.name,
-        number: body.number,
-        id: Math.floor(Math.random()*9999)
-    }
-
-    persons = persons.concat(person)
-
-    respons.json(person)
-})
-
 morgan.token('post', (request, response) => {
     if (request.method === 'POST')
         return JSON.stringify(request.body)
@@ -69,9 +36,44 @@ morgan.token('post', (request, response) => {
         return ''
 })
 
-morgan.format('postFormat',':method :url :status :res[content-length] - :response-time ms :post')
+morgan.format('postFormat', ':method :url :status :res[content-length] - :response-time ms :post')
 
 app.use(morgan('postFormat'))
+
+app.get('/info', (request, response) => {
+    response.send(`
+    <p>Phonebook has info for ${persons.length} people</p>
+    <p>${new Date}</p>
+    `)
+})
+
+app.get('/api/persons', (request, response) => {
+    response.json(persons)
+})
+
+app.post('/api/persons', (request, response) => {
+    const body = request.body
+
+    if (!body.name || !body.number) {
+        return response.status(400).json({
+            error: 'name or number is missing'
+        })
+    } else if (persons.find(person => person.name === body.name)) {
+        response.status(400).json({
+            error: 'name must be unique'
+        })
+    }
+
+    const person = {
+        name: body.name,
+        number: body.number,
+        id: Math.floor(Math.random() * 9999)
+    }
+
+    persons = persons.concat(person)
+
+    response.json(person)
+})
 
 app.get('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
@@ -91,6 +93,6 @@ app.delete('/api/persons/:id', (request, response) => {
     response.status(204).end()
 })
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT)
-console.log(`server running at ${PORT}`)
+console.log(`Server running on ${PORT}`)
