@@ -42,36 +42,56 @@ const App = () => {
       const oldPerson = persons.filter(e => e.name === newName)
       const _id = oldPerson.map(e => e.id)[0]
       const result = window.confirm(
-        `${newName} is already added to phonebook, replace the old number with a new one?
-            `)
+        `${newName} is already added to phonebook, replace the old number with a new one?`
+      )
       if (result) {
         personService
           .update(_id, personObject)
           .then(returnedPerson => {
-            const newPersons = persons.map(person =>
-              person.id !== returnedPerson.id ? person : returnedPerson
-            )
-            setPersons(newPersons)
+            setPersons(persons.map(person =>
+              person.id === returnedPerson.id ? returnedPerson : person))
+            setMessage({
+              text: `Edited ${returnedPerson.name}`,
+              type: "success",
+            })
+            setTimeout(() => {
+              setMessage(null)
+            }, 3000)
           })
-        setMessage(
-          `Edited ${personObject.name}`
-        )
-        setTimeout(() => {
-          setMessage(null)
-        }, 3000)
+          .catch(error => {
+            setMessage({
+              text: error.response.data.error,
+              type: "error"
+            })
+            setTimeout(() => {
+              setMessage(null)
+            }, 3000)
+          })
         setNewName('')
         setNewNumber('')
       }
     } else {
       personService
         .create(personObject)
-        .then(returnedPerson => setPersons(persons.concat(returnedPerson)))
-      setMessage(
-        `Added ${personObject.name}`
-      )
-      setTimeout(() => {
-        setMessage(null)
-      }, 3000)
+        .then(returnedPerson => {
+          setPersons(persons.concat(returnedPerson))
+          setMessage({
+            text: `Added ${returnedPerson.name}`,
+            type: "success",
+          })
+          setTimeout(() => {
+            setMessage(null)
+          }, 3000)
+        })
+        .catch(error => {
+          setMessage({
+            text: error.response.data.error,
+            type: "error"
+          })
+          setTimeout(() => {
+            setMessage(null)
+          }, 3000)
+        })
       setNewName('')
       setNewNumber('')
     }
@@ -96,9 +116,9 @@ const App = () => {
       <PersonForm addPerson={addPerson} data={addPersonData} />
       <h2>Numbers</h2>
       {filter === '' ?
-        <Persons filterPerson={persons} setPersons={setPersons} />
+        <Persons filterPerson={persons} setPersons={setPersons} setMessage={setMessage} />
         :
-        <Persons filterPerson={filterPersons} setPersons={setPersons} />
+        <Persons filterPerson={filterPersons} setPersons={setPersons} setMessage={setMessage} />
       }
     </div>
   )
