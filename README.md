@@ -22,7 +22,6 @@ https://fullstackopen.com/en/
   <li>✅ part4: Testing Express servers, user administration </li>
   <li>✅ part5: Testing React apps </li>
   <li>✅ part6: State management with Redux </li>
-  <li>✅ part7: React router, custom hooks, styling app with CSS and webpack </li>
 </ul>
 
 ## Languages and Tools 🔧
